@@ -11,5 +11,6 @@ class Team(BaseModel):
 
     class Config:
         validate_by_name = True  
+        extra = "ignore"
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}

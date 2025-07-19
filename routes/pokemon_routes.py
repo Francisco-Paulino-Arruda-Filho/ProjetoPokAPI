@@ -16,10 +16,8 @@ async def create_team():
 
 @router.get("/all_teams", response_model=list[Team])
 async def get_all_teams():
-    teams = []
-    async for team in collection.find():
-        teams.append(Team(**team))
-    return teams  
+    teams = await collection.find().to_list(1000)
+    return [Team(**team) for team in teams]
 
 @router.post("/team/{team_id}/slot/{slot_index}", response_model=Team)
 async def add_pokemon_to_slot(team_id: str, slot_index: int, pokemon: Pokemon):
@@ -67,6 +65,15 @@ async def remove_pokemon_from_slot(team_id: str, slot_index: int):
         {"$set": {f"team.{slot_index}": None}}
     )
     team = await collection.find_one({"_id": ObjectId(team_id)})
+    return Team(**team)
+
+@router.delete("/team/{team_id}", response_model=Team)
+async def delete_team(team_id: str):
+    team = await collection.find_one({"_id": ObjectId(team_id)})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    await collection.delete_one({"_id": ObjectId(team_id)})
     return Team(**team)
 
 @router.get("/team/{team_id}", response_model=Team)
