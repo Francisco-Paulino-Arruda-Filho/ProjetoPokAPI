@@ -1,5 +1,13 @@
 # ProjetoPokAPI
 
+## Comando
+
+``
+
+uvicorn main:app --reload --host :: --port 8000
+
+``
+
 | ID    | Descrição do Teste                                                                          | Tipo             | Passos de teste                                                                                       | Dados de teste         | Resultado esperado                                                  | Resultado real                                                    | Passe / Falha                                                                 |
 |-------|----------------------------------------------------------------------------------------------|------------------|--------------------------------------------------------------------------------------------------------|------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | TC01  | Criação de um time vazio                                                                     | Integração (E2E) | Enviar requisição POST para `/team`                                                                   | -                      | Retorna objeto `Team` com ID e slots vazios                        | Retorna objeto `Team` com ID e slots vazios                        | Passe                                                                          |
