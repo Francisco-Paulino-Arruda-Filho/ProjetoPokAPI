@@ -3,15 +3,15 @@ from models.Team import Team
 from models.Pokemon import Pokemon
 from bson import ObjectId
 from database import pokemons_collection as collection
+from models.User import TeamCreateRequest
 
 router = APIRouter()
 
 @router.post("/team", response_model=Team)
-async def create_team():
-    team = Team()
+async def create_team(payload: TeamCreateRequest):
+    team = Team(user_id=payload.user_id)
     result = await collection.insert_one(team.dict(by_alias=True))
     created = await collection.find_one({"_id": result.inserted_id})
-    print(f"Created team with ID: {created['_id']}")
     return Team(**created)
 
 @router.get("/all_teams", response_model=list[Team])
@@ -21,7 +21,6 @@ async def get_all_teams():
 
 @router.post("/team/{team_id}/slot/{slot_index}", response_model=Team)
 async def add_pokemon_to_slot(team_id: str, slot_index: int, pokemon: Pokemon):
-    print(f"Adding Pokemon {pokemon.name} to team {team_id} at slot {slot_index}")
     if slot_index < 0 or slot_index >= 6:
         raise HTTPException(status_code=400, detail="Invalid slot index")
     
@@ -36,12 +35,13 @@ async def add_pokemon_to_slot(team_id: str, slot_index: int, pokemon: Pokemon):
     updated_team = await collection.find_one({"_id": ObjectId(team_id)})
     return Team(**updated_team)
 
-@router.get("/team", response_model=Team)
-async def get_team():
-    team = await collection.find_one()
+@router.get("/teams/{team_id}", response_model=Team)
+async def get_team(team_id: str):
+    team = await collection.find_one({"_id": ObjectId(team_id)})
     if not team:
-        raise HTTPException(status_code=404, detail="Team not found")
-    return Team(**team)
+        raise HTTPException(status_code=404, detail="Time não encontrado.")
+    
+    return Team(**team)  # Converte para modelo Pydantic (resolve o erro)
 
 @router.put("/team/{team_id}/slot/{slot_index}", response_model=Team)
 async def update_pokemon_slot(team_id: str, slot_index: int, pokemon: Pokemon):
@@ -82,3 +82,10 @@ async def get_team_by_id(team_id: str):
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     return Team(**team)
+
+@router.get("/team/{user_id}/user", response_model=list[Team])
+async def get_teams_by_user(user_id: str):
+    print(f"Fetching teams for user_id: {user_id}")
+    teams = await collection.find({"user_id": ObjectId(user_id)}).to_list(1000)
+    return [Team(**team) for team in teams]
+

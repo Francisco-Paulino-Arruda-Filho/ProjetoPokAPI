@@ -8,6 +8,7 @@ from models.Pokemon import Pokemon
 class Team(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     team: List[Optional[Pokemon]] = Field(default_factory=lambda: [None] * 6)
+    user_id: PyObjectId = Field(default_factory=PyObjectId, alias="user_id")
 
     class Config:
         validate_by_name = True  

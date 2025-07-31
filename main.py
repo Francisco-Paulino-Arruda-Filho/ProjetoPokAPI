@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routes.pokemon_routes import router
+from routes.user_router import user_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -13,3 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(user_router)
