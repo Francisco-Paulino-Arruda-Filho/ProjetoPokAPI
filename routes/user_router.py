@@ -29,6 +29,13 @@ async def register(user: UserCreate):
     })
     return {"msg": "Usuário criado com sucesso."}
 
+@user_router.delete("/user/{user_id}")
+async def delete_user(user_id: str):
+    result = await users_collection.delete_one({"_id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+    return {"msg": "Usuário excluído com sucesso."}
+
 @user_router.post("/login")
 async def login(user: UserLogin):
     db_user = await users_collection.find_one({"email": user.username})
