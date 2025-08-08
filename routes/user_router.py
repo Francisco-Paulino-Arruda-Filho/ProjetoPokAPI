@@ -1,3 +1,4 @@
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from datetime import datetime, timedelta
 from database import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, users_collection
@@ -31,9 +32,15 @@ async def register(user: UserCreate):
 
 @user_router.delete("/user/{user_id}")
 async def delete_user(user_id: str):
-    result = await users_collection.delete_one({"_id": user_id})
+    try:
+        obj_id = ObjectId(user_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="ID inválido.")
+
+    result = await users_collection.delete_one({"_id": obj_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+    
     return {"msg": "Usuário excluído com sucesso."}
 
 @user_router.post("/login")
