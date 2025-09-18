@@ -18,7 +18,7 @@ def create_token(data: dict):
 
 @user_router.post("/register")
 async def register(user: UserCreate):
-    existing_user = await users_collection.find_one({"username": user.username})
+    existing_user = await users_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Usuário já existe.")
     
