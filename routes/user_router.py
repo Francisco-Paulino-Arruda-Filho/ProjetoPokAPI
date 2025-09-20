@@ -40,8 +40,11 @@ async def delete_user(user_id: str):
     result = await users_collection.delete_one({"_id": obj_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
-    
-    return {"msg": "Usuário excluído com sucesso."}
+
+    from database import pokemons_collection
+    await pokemons_collection.delete_many({"user_id": obj_id})
+
+    return {"msg": "Usuário e seus times associados foram excluídos com sucesso."}
 
 @user_router.post("/login")
 async def login(user: UserLogin):
@@ -51,14 +54,13 @@ async def login(user: UserLogin):
 
     stored_password = db_user["password"]
 
-    # Se for bson.binary.Binary, converte para bytes
     if isinstance(stored_password, Binary):
         stored_password = bytes(stored_password)
 
     if not bcrypt.checkpw(user.password.encode('utf-8'), stored_password):
         raise HTTPException(status_code=401, detail="Credenciais inválidas.")
 
-    user_id = str(db_user["_id"])  # Converte ObjectId para string
+    user_id = str(db_user["_id"])  
     username = db_user["username"]
     token = create_token({"sub": db_user["username"], "id": user_id})
     email = db_user.get("email", None)

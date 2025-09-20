@@ -31,7 +31,6 @@ async def add_pokemon_to_slot(team_id: str, slot_index: int, pokemon: Pokemon):
     team["team"][slot_index] = pokemon.dict()
     await collection.update_one({"_id": ObjectId(team_id)}, {"$set": {"team": team["team"]}})
     
-    # Buscar novamente para garantir consistência
     updated_team = await collection.find_one({"_id": ObjectId(team_id)})
     return Team(**updated_team)
 
@@ -41,7 +40,7 @@ async def get_team(team_id: str):
     if not team:
         raise HTTPException(status_code=404, detail="Time não encontrado.")
     
-    return Team(**team)  # Converte para modelo Pydantic (resolve o erro)
+    return Team(**team)  
 
 @router.put("/team/{team_id}/slot/{slot_index}", response_model=Team)
 async def update_pokemon_slot(team_id: str, slot_index: int, pokemon: Pokemon):
