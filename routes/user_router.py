@@ -7,6 +7,7 @@ from models.UserLogin import UserLogin
 import bcrypt
 import jwt
 from bson.binary import Binary
+from database import pokemons_collection
 
 user_router = APIRouter()
 
@@ -41,7 +42,6 @@ async def delete_user(user_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
-    from database import pokemons_collection
     await pokemons_collection.delete_many({"user_id": obj_id})
 
     return {"msg": "Usuário e seus times associados foram excluídos com sucesso."}
